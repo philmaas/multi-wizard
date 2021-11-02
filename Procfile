@@ -1,0 +1,1 @@
+web: python ./fable_server/server.py --log-file -
