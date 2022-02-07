@@ -1,11 +1,61 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-us">
 
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>fable-webgl-demo</title>
+    <title>wizard-web-chat</title>
     <style>
+
+
+
+      form { 
+        z-index: 3;
+      }
+      form input { 
+        border: 0; 
+        padding:5px;
+        background-color: #300; 
+        color: #FFE819;
+      }
+
+    input {
+        border: 0;
+        padding: 5px;
+        background-color: #300;
+        color: #FFE819;
+        width: 500px;
+    }
+
+    label {
+
+        color: white;
+    }
+/*      form button { 
+
+        background: #411; 
+        border: none; 
+        padding: 5px;
+        color: #FFE819; 
+      }*/
+
+      #messages { 
+        list-style-type: none; 
+        margin: 0; 
+        padding: 0; 
+        color: #FFE819;
+      }
+
+      #messages li { 
+        padding: 5px 5px; 
+        back
+      }
+/*      #messages li:nth-child(odd) { 
+        background: #ddd; 
+      }*/
+      #messages { 
+        margin-bottom: 5px }
+
       html {
         box-sizing: border-box;
       }
@@ -13,21 +63,24 @@
         box-sizing: inherit;
       }
       body {
-        margin: 0;
-        background: #444;
+
+        background: #700009;
       }
       #gameContainer {
-        width: 100vw;
+        width: 100vh;
         height: 100vh;
+        background: #700009 !important;
+
       }
-      canvas {
-        width: 100%;
-        height: 100%;
-        display: block;
+      #canvas {
+
+         width: 100vh !important;
+          height: 100vh !important;
       }
+
       /* try to handle mobile dialog */
       canvas + * {
-        z-index: 2;
+        z-index: 0;
       }
       .logo {
           display: block;
@@ -49,9 +102,7 @@
       }
 
       #loader {
-        position: absolute;
-        left: 0;
-        top: 0;
+
         width: 100vw;
         height: 100vh;
         display: flex;
@@ -87,21 +138,87 @@
         }
       }
 
+      @media only screen and (max-width: 600px) {
+        body {
+
+        }
+
+        #canvas {
+          width: 100vh;
+          height: 100vh;
+          padding-right: 300px;
+        }
+      }
+
     </style>
   </head>
 
   <body>
-    <div id="gameContainer"></div>
+
+      <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+      <script type="text/javascript" src="//cdn.jsdelivr.net/npm/js-base64@3.6.0/base64.min.js"></script>
+      <script src="//cdn.rawgit.com/dcodeIO/protobuf.js/6.X.X/dist/protobuf.js"></script>
+      <!-- <div id="gameContainer">
+
+    </div>
     <div id="loader">
       <img class="logo" src="/static/logo.png">
       <div class="spinner"></div>
       <div class="progress"><div class="full"></div></div>
-    </div>
+    </div> -->
+
+      <ul id="messages"></ul>
+      <ul>
+          <label>Character 1</label>
+          <input type="text"
+                 id="input1"
+                 onkeydown="if (event.keyCode == 13)
+                        doSomething($(this).attr('id'))" />
+      </ul>
+
+      <ul>
+          <label>Character 2</label>
+          <input type="text"
+                 id="input2"
+                 onkeydown="if (event.keyCode == 13)
+                        doSomething($(this).attr('id'))" />
+      </ul>
+
+      <ul>
+          <label>Character 3</label>
+          <input type="text"
+                 id="input3"
+                 onkeydown="if (event.keyCode == 13)
+                        doSomething($(this).attr('id'))" />
+      </ul>
+
+      <ul>
+          <label>Character 4</label>
+          <input type="text"
+                 id="input4"
+                 onkeydown="if (event.keyCode == 13)
+                        doSomething($(this).attr('id'))" />
+      </ul>
+      <ul>
+          <label>Character 5</label>
+          <input type="text"
+                 id="input5"
+                 onkeydown="if (event.keyCode == 13)
+                        doSomething($(this).attr('id'))" />
+      </ul>
+      <ul>
+          <label>Character 6</label>
+          <input type="text"
+                 id="input6"
+                 onkeydown="if (event.keyCode == 13)
+                        doSomething($(this).attr('id'))" />
+      </ul>
   </body>
 
-  <script src="/static/Build/UnityLoader.js" type="text/javascript"></script>
-  <script>
-  var gameInstance = UnityLoader.instantiate("gameContainer", "/static/Build/miniimal_new.json", {onProgress: UnityProgress});
+ <!--  <script src="/static/Build/UnityLoader.js" type="text/javascript"></script> -->
+ <!--  <script>
+  var gameInstance = UnityLoader.instantiate("gameContainer", "/static/Build/Fable_webgl.json", {onProgress: UnityProgress});
   function UnityProgress(gameInstance, progress) {
     if (!gameInstance.Module) {
       return;
@@ -113,14 +230,421 @@
       gameInstance.progress = progress.querySelector(".full");
       loader.querySelector(".spinner").style.display = "none";
     }
-    gameInstance.progress.style.transform = `scaleX(${progress})`;
+    //gameInstance.progress.style.transform = `scaleX(${progress})`;
     if (progress === 1 && !gameInstance.removeTimeout) {
       gameInstance.removeTimeout = setTimeout(function() {
           loader.style.display = "none";
       }, 2000);
     }
   }
-  </script>
+  </script> -->
 
+  <script>
+
+      // Mit dem Socket.io-Server verbinden
+      var socket = io.connect('https://multi-wizard.herokuapp.com/'); // 127.0.0.1:5000
+      var msg = 'test text';
+      const parser = new DOMParser();
+
+
+      $('form').submit(
+            function(e){
+              e.preventDefault(); // prevents page reloading
+
+
+              //msg = window.atob($('#m').val());
+              msg = $('#sim1').val();
+              //var payload = { text: msg, id: "3", type: 0, args: "" }; 
+              //var basestring = protobuf.util.base64.encode(payload);
+              socket.emit('plaintext', msg);    // need to encode to base64
+
+              console.log(msg);
+
+                //msg = $('#m').val();
+              $('#sim1').val('');
+
+            return false;
+          }
+      );
+
+      function doSomething(id) {
+          msg = $('#' + id).val();
+
+          console.log(msg);
+          socket.emit(id, msg);
+
+          $('#' + id).val('');
+          //console.log("sadöfhlkasd");
+      }
+
+      function doSomething2() {
+          msg = $('#input2').val()
+
+          console.log(msg);
+          socket.emit('#input2', msg);
+
+          $('#input2').val('');
+          //console.log("sadöfhlkasd");
+      }
+
+      socket.on('connect', function (data) {
+        console.log('[socket.io] "connect"-Event vom Server empfangen:\n' + data); 
+      });
+
+      socket.on('disconnect', function (data) {
+        console.log('[socket.io] "disconnect"-Event vom Server empfangen:\n' + data);
+      });
+
+      socket.on('fabl.twitch_bot_event', function (data) {
+        console.log('[socket.io] "Twitch"-Event vom Server empfangen:\n' + data);
+        // Eigenen Event vom Client an den Server schicken
+        var msg = JSON.stringify(data);
+        
+        var obj = JSON.parse(msg);
+
+        var sayLine =  window.atob(obj['data']) //window.btoa(obj['data']);
+
+        var items = [];
+        $.each( data, function( key, val ) {
+          $('#messages').append($('<li>').text("<anonymous>: " + window.atob(val)));
+        });
+
+      });
+
+
+      socket.on('fabl.event', function (data) {
+
+        //console.log('[socket.io] "fabl event"-Event vom Server empfangen:\n' + data);
+      
+
+        protobuf.load("fabl.proto", function(err, root) {
+            if (err)
+                throw err;
+
+
+            // Obtain a message type
+            var FablEvent = root.lookupType("fable.FablEvent");
+            //console.log(root);
+            // Exemplary payload
+            //var payload = { text: "text", id: "3", type: 0 };
+
+            // Verify the payload if necessary (i.e. when possibly incomplete or invalid)
+
+            var errMsg = FablEvent.verify(data);
+            if (errMsg)
+                throw Error(errMsg);
+            var payload = { text: "text", id: "3", type: 0, args: ""};  
+            //var uint8 = new Uint8Array(2);
+            var buffer = FablEvent.encode(payload).finish();
+            //console.log('TEST', FablEvent.decode(buffer));
+
+
+
+            //var msg = JSON.stringify(data)
+            //var obj = JSON.parse(msg);
+            //var buffer = FablEvent.encode(msg).finish();
+            //var buffer = FablEvent.encode(data).finish();
+
+            
+            //console.log(buffer);
+
+
+            //console.log(FablEvent.decode(buffer));
+            //var msg = JSON.stringify(data)
+            //var obj = JSON.parse(msg);
+            //console.log("Test : ", FablEvent.decode(data, buffer))
+            //console.log(obj);
+
+            //var buffer = FablEvent.encode(msg).finish();
+
+              
+            //var msg = JSON.stringify(data)
+            //var obj = JSON.parse(msg);
+            //var message = window.atob(obj['data']);
+
+
+
+            // Create a new message
+            //var message = FablEvent.create(JSON.stringify(data));
+            //var message  = FablEvent.create(data);
+            //var message = FablEvent.create(payload); // or use .fromObject if conversion is necessary
+
+            // Encode a message to an Uint8Array (browser) or Buffer (node)
+            //var buffer = FablEvent.encode(data).finish();
+            // ... do something with buffer
+            //console.log("FablEvent : ", FablEvent.decode(buffer));
+            ;
+            //var message = FablEvent.decode(buffer);
+            // ... do something with message
+           //message = data;
+
+
+         
+            // Decode an Uint8Array (browser) or Buffer (node) to a message
+            
+
+            //console.log("FablEvent text : ", message);
+
+            //var msga = FablEvent.decode(data);
+
+            //console.log("FablEvent Decode Data : ", FablEvent.decode(data));
+
+/////////
+
+
+
+            //console.log("TEST MESSAGE : ", JSON.stringify(msga, null, 4));
+
+            // Exemplary payload
+            //var payload = { id: "AwesomeString", text: "Oh Hello"};
+
+            //var msg = JSON.stringify(data);
+
+
+            //var obj = JSON.parse(msg);
+            //var sayLine =  window.atob(obj['data']) //window.btoa(obj['data']);
+            //var string = obj.data;
+            //console.log("Message : ",sayLine)
+
+            //var message = FablEvent.decode(message.data).finish(); // or use .fromObject if conversion is necessary
+            //var buffer = root.fromJSON(string, root)
+
+
+            // Encode a message to an Uint8Array (browser) or Buffer (node)
+            //var buffer = FablEvent.encode(message).finish();
+
+            //var buffer2 = FablEvent.decode(data.fromObject).finish();
+            //console.log("Buffer : ",buffer)
+            // Decode an Uint8Array (browser) or Buffer (node) to a message
+            //var message = FablEvent.decode(buffer2);
+            //console.log("Message : ",message)
+            // ... do something with message
+
+            //console.log("protobuf.util.base64 : ", protobuf.util.base64.decode(string, buf))
+
+            //var payload = { window.atob(obj['data'] };
+            // Verify the payload if necessary (i.e. when possibly incomplete or invalid)
+            //var errMsg = FablEvent.verify(payload);
+            //if (errMsg)
+                //throw Error(errMsg);
+           
+
+            //var test = window.atob(string);
+            //var len = protobuf.util.base64.length(obj['data']);
+
+
+            //test.equal(len, str.length, "should calculate '" + enc + "' as " + str.length + " bytes");
+
+            
+            //console.log("protobuf.util.base64 : ", protobuf.util.base64.decode(string, buf));
+            //protobuf.util.base64.decode(data)
+            
+            // ... do something with buffer
+            //var msg = JSON.stringify(data);
+            //var obj = JSON.parse(msg);
+            // Decode an Uint8Array (browser) or Buffer (node) to a message
+            //var message = FablEvent.decodeDelimited(window.atob(obj['data']));
+            // ... do something with message
+            //console.log(message);
+            // If the application uses length-delimited buffers, there is also encodeDelimited and decodeDelimited.
+
+   
+
+            //var msg = JSON.stringify(data);
+            //var obj = JSON.parse(msg);
+            //var message = FablEvent.decode(obj);
+      // ... do something with message
+            //console.log(message);
+
+
+
+        });
+
+
+        // Eigenen Event vom Client an den Server schicken
+
+        //console.log(obj);
+        //var test = JSON.stringify(window.atob(obj['data']));
+        //console.log(window.atob(obj['data']));
+        //$.getDecoder.json(window.atob(obj['data']));
+        //console.dir(window.atob(obj['data']));
+       
+        //console.log(string);
+        //console.dir(test);
+        //var test = b64DecodeUnicode(msg);
+        //console.log(test);
+
+        //gameInstance.SendMessage('SceneLogic', 'msgLucy', sayLine);
+        //$('#messages').append($('<li>').text(window.atob(obj['data'])));
+
+        //wizardMsg(obj);
+
+
+
+//byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+//String decodedString = new String(decodedBytes);
+
+        //var items = [];
+        //var test = window.atob(obj['data']);
+        
+
+        //var decodedString = atob(test);
+        //console.log(decodedString);
+
+        // $.each( data, function( key, val ) {
+        //   $('#messages').append($('<li>').text("<Wizard>: " + window.atob(val)));
+        // });
+
+
+      });
+    </script>
+
+
+
+
+
+
+<script>
+    function userMsg(str)
+    {
+        //window.alert("UTF8ToString(str)");
+        msg = window.btoa(str)
+        socket.emit('fabl.event', msg); 
+    };
+
+    function lucyMsg(){
+      gameInstance.SendMessage('SceneLogic', 'msgLucy', 'anything');
+    };
+
+
+   function extractBytes(data){
+
+            var b64 = data.data.list[0].str;
+            var byteStr = window.atob(b64);
+            return byteStr.ToByteArray();
+   }
+    function wizardMsg(text){
+      var testtext = "Can you hear me?  : oh well";
+
+      var data = window.btoa(testtext)//'CAESH2NoZWNrIGNoZWNrIGNoZWNrIG9uZSB0d28gdGhyZWUYASVB1Xw/KgwIoLXQ8gUQjs7DwQI=';
+      text = window.atob(data);
+          $('#messages').append($('<li>').text(text));
+          window.scrollTo(0, document.body.scrollHeight);
+          text ='';
+          msg = '';
+          return false;
+    };
+
+    </script>
 </html>
 
+
+
+
+
+<!-- 
+
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      #messages { margin-bottom: 40px }
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+ <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        var data = 'CAESH2NoZWNrIGNoZWNrIGNoZWNrIG9uZSB0d28gdGhyZWUYASVB1Xw/KgwIoLXQ8gUQjs7DwQI=';
+        var msg = 'test text';
+        $('form').submit(
+            function(e){
+            e.preventDefault(); // prevents page reloading
+            msg = window.atob($('#m').val());
+            socket.emit('fabl.event', msg);    // need to encode to base64
+            msg = $('#m').val();
+            $('#m').val('');
+            
+
+            return false;
+          }
+        );
+
+        socket.on('fabl.event', 
+          function()
+          {
+          text = window.btoa(msg);
+          $('#messages').append($('<li>').text(text));
+          window.scrollTo(0, document.body.scrollHeight);
+          text ='';
+          msg = '';
+          return false;
+          }
+        );
+        
+
+      });
+    </script>
+
+ <script>
+      // Mit dem Socket.io-Server verbinden
+      var socket = io.connect('https://sleepy-meadow-83293.herokuapp.com/');
+      var msg = 'test text';
+
+
+      $('form').submit(
+            function(e){
+            e.preventDefault(); // prevents page reloading
+            msg = window.btoa($('#m').val());
+            socket.emit('fabl.event', msg);    // need to encode to base64
+            msg = $('#m').val();
+            $('#m').val('');
+            return false;
+          }
+        );
+
+
+      // Warten auf Nachrichten
+      socket.on('connect', function (data) {
+        console.log('[socket.io] "connect"-Event vom Server empfangen:\n' + data);
+        // Eigenen Event vom Client an den Server schicken
+        
+      });
+      socket.on('disconnect', function (data) {
+        console.log('[socket.io] "disconnect"-Event vom Server empfangen:\n' + data);
+        // Eigenen Event vom Client an den Server schicken
+        
+      });
+
+      socket.on('fabl.event', function (data) {
+        console.log('[socket.io] "fabl event"-Event vom Server empfangen:\n' + JSON.stringify(data));
+
+        // Eigenen Event vom Client an den Server schicken
+        var msg = JSON.stringify(data);
+        
+        var obj = JSON.parse(msg);
+        var sayLine =  window.atob(obj['data']) //window.btoa(obj['data']);
+        $('#messages').append($('<li>').text(sayLine));
+          window.scrollTo(0, document.body.scrollHeight);
+
+      });
+
+    </script>
+
+  </body>
+</html> -->
